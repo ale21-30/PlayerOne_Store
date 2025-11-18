@@ -42,13 +42,13 @@ function renderizarvideojuegos (ista){
         card.innerHTML = `
             <img src="${imagen}" alt="${titulo}" class="h-40 w-full object-cover" />
                 <div class="p-4 flex flex-col gap-2 flex-1">
-                <h3 class="font-semibold text-slate-900 leading-tight">${titulo}</h3>
+                <h3 class="font-semibold text-black leading-tight">${titulo}</h3>
                 <p class="text-xs text-slate-500">
                         Precio: ${normal && normal !== "—" ? `<s>$${normal}</s>` : "—"}
                         ${oferta && oferta !== "—" ? ` · <span class="font-semibold text-slate-900">$${oferta}</span>` : ""}
                         ${ahorro ? ` · Ahorro ${ahorro}%` : ""}
                 </p>
-                <button class="mt-2 w-full bg-slate-900 text-white py-2 rounded-lg text-sm hover:bg-slate-800">
+                <button class="mt-2 w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-800 ver-detalle-btn">
                         Ver detalle
                 </button>
                 </div>
@@ -56,9 +56,41 @@ function renderizarvideojuegos (ista){
 //Agregar la card al grid
         grid.appendChild (card);
 
-        
+        // Agregar evento al botón "Ver detalle"
+        const btnVerDetalle = card.querySelector(".ver-detalle-btn");
+        btnVerDetalle.addEventListener("click", function() {
+            this.innerHTML = `<span class="inline-block animate-spin">⏳</span> Cargando...`;
+            this.disabled = true;
+            
+            // Simular carga de 2 segundos
+            setTimeout(() => {
+                // Llenar el modal con la información del juego
+                document.querySelector("#modal-imagen").src = imagen;
+                document.querySelector("#modal-titulo").textContent = titulo;
+                document.querySelector("#modal-precio").textContent = `Precio: $${oferta}`;
+                
+                // Mostrar el modal
+                document.querySelector("#modal-juego").classList.remove("hidden");
+                
+                this.innerHTML = "Ver detalle";
+                this.disabled = false;
+            }, 2000);
+        });
     });
 }
+
+// Cerrar modal
+document.querySelector("#cerrar-modal").addEventListener("click", function() {
+    document.querySelector("#modal-juego").classList.add("hidden");
+});
+
+// Cerrar modal al hacer clic fuera
+document.querySelector("#modal-juego").addEventListener("click", function(e) {
+    if (e.target === this) {
+        this.classList.add("hidden");
+    }
+});
+
 
 
 async function cargarVideojuegosInicial(){ 
