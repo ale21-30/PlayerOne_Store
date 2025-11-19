@@ -32,25 +32,27 @@
           Buscar
 </button>
 </div>
- 
+
       <div class="flex gap-2">
+
 <select
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+    id="select-tienda"
+    class="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
 >
-<option value="">Plataforma</option>
-<option value="pc">PC</option>
-<option value="ps5">PlayStation</option>
-<option value="xbox">Xbox</option>
-<option value="switch">Nintendo Switch</option>
+    <option value="1">Steam</option>
+    <option value="25">Epic Games</option>
+    <option value="7">GOG</option>
+    <option value="2">GamersGate</option>
+    <!-- Agrega más tiendas según los IDs de CheapShark -->
 </select>
- 
-        <select
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+
+       <select
+    id="select-ordenar"
+    class="rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
 >
-<option value="">Ordenar por</option>
-<option value="rating">Mejor valorados</option>
-<option value="recent">Más recientes</option>
-<option value="name">Nombre</option>
+    <option value="">Ordenar por</option>
+    <option value="precio-menor">Precio menor a mayor</option>
+    <option value="precio-mayor">Precio mayor a menor</option>
 </select>
 </div>
 </section>

@@ -36,8 +36,8 @@ function renderizarvideojuegos (ista){
 
         const titulo=juego.title || juego.external || "Titulo Desconocido"; //manejo de datos faltantes
         const imagen=juego.thumb || juego.image || " "; //imagen por defecto si falta
-        const  normal=juego.normalPrice ?? "-"; //operador nulish verifica si es nulo o indefinido y en ese caso asigna ese valor
-        const  oferta=juego.salePrice ?? juego.cheapest ?? "-"; //manejo de datos faltantes
+        const normal = juego.normalPrice ?? (juego.cheapest ?? "-"); //operador nulish verifica si es nulo o indefinido y en ese caso asigna ese valor
+        const oferta = juego.salePrice ?? juego.cheapest ?? "-"; //manejo de datos faltantes
         const  ahorro=juego.savings ? Math.round (Number(juego.savings)) : null; //convierte a numero yredondea el ahorro si existe
 
         //itera sobre cada juego en la lista
@@ -50,8 +50,8 @@ function renderizarvideojuegos (ista){
                 <div class="p-4 flex flex-col gap-2 flex-1">
                 <h3 class="font-semibold text-black leading-tight">${titulo}</h3>
                 <p class="text-xs text-slate-500">
-                        Precio: ${normal && normal !== "—" ? `<s>$${normal}</s>` : "—"}
-                        ${oferta && oferta !== "—" ? ` · <span class="font-semibold text-slate-900">$${oferta}</span>` : ""}
+                        Precio: ${normal !== "-" && normal !== oferta ? `<s>$${normal}</s>` : ""}
+                        ${oferta !== "-" ? ` · <span class="font-semibold text-slate-900">$${oferta}</span>` : ""}
                         ${ahorro ? ` · Ahorro ${ahorro}%` : ""}
                 </p>
                 <button class="mt-2 w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-800 ver-detalle-btn">
@@ -113,10 +113,11 @@ document.querySelector("#modal-juego").addEventListener("click", function(e) {
 
 async function cargarVideojuegosInicial(){ 
      //Async significa que la función maneja operaciones asincrónicas y puede usar await
-    try {
-        const url="https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=60";
-        const resp= await fetch (url);
-        const datos= await resp.json();
+try {
+        const tiendaID = document.querySelector("#select-tienda")?.value || "1";
+        const url = `https://www.cheapshark.com/api/1.0/deals?storeID=${tiendaID}&pageSize=60`;
+        const resp = await fetch(url);
+        const datos = await resp.json();
 
         todosLosJuegos = datos;
         paginaActual = 1;
@@ -147,49 +148,80 @@ function actualizarBotonesPaginacion() {
     document.querySelector("#btn-siguiente").disabled = paginaActual === totalPaginas;
 }
 
-// Evento botón Anterior
+// Función para ordenar videojuegos
+
+function ordenarJuegos(criterio) {
+    let juegosOrdenados = [...todosLosJuegos];
+
+    // Detecta si los datos son de deals (tienen salePrice) o de games (tienen cheapest)
+    const esDeals = juegosOrdenados.length > 0 && juegosOrdenados[0].hasOwnProperty("salePrice");
+
+    if (criterio === "precio-menor") {
+        juegosOrdenados.sort((a, b) => {
+            let precioA, precioB;
+            if (esDeals) {
+                precioA = Number(a.salePrice) || Number(a.normalPrice) || 999999;
+                precioB = Number(b.salePrice) || Number(b.normalPrice) || 999999;
+            } else {
+                precioA = Number(a.cheapest) || 999999;
+                precioB = Number(b.cheapest) || 999999;
+            }
+            return precioA - precioB;
+        });
+    } 
+    else if (criterio === "precio-mayor") {
+        juegosOrdenados.sort((a, b) => {
+            let precioA, precioB;
+            if (esDeals) {
+                precioA = Number(a.salePrice) || Number(a.normalPrice) || 0;
+                precioB = Number(b.salePrice) || Number(b.normalPrice) || 0;
+            } else {
+                precioA = Number(a.cheapest) || 0;
+                precioB = Number(b.cheapest) || 0;
+            }
+            return precioB - precioA;
+        });
+    }
+
+    todosLosJuegos = juegosOrdenados;
+    paginaActual = 1;
+    renderizarPagina();
+    document.querySelector("#select-ordenar").value = "";
+}
+
+// EVENTOS - Todos aquí al final
+cargarVideojuegosInicial();
+
+// Ordenamiento
+const selectOrdenar = document.querySelector("#select-ordenar");
+if (selectOrdenar) {
+    selectOrdenar.addEventListener("change", function(e) {
+        console.log("Valor del select:", e.target.value);
+        if (e.target.value) {
+            ordenarJuegos(e.target.value);
+        }
+    });
+}
+
+// Paginación
 document.querySelector("#btn-anterior").addEventListener("click", function() {
     if (paginaActual > 1) {
         paginaActual--;
         renderizarPagina();
-        window.scrollTo(0, 0); // Scroll hacia arriba
+        window.scrollTo(0, 0);
     }
 });
 
-// Evento botón Siguiente
 document.querySelector("#btn-siguiente").addEventListener("click", function() {
     const totalPaginas = Math.ceil(todosLosJuegos.length / resultadosPorPagina);
     if (paginaActual < totalPaginas) {
         paginaActual++;
         renderizarPagina();
-        window.scrollTo(0, 0); // Scroll hacia arriba
+        window.scrollTo(0, 0);
     }
 });
 
-cargarVideojuegosInicial();
-
-// Eventos de búsqueda
-setTimeout(() => {
-    const btnBuscar = document.querySelector("#btn-buscar");
-    const inputBusqueda = document.querySelector("#input-busqueda");
-    
-    if (btnBuscar) {
-        btnBuscar.addEventListener("click", function() {
-            const titulo = inputBusqueda.value;
-            buscarVideojuegos(titulo);
-        });
-    }
-    
-    if (inputBusqueda) {
-        inputBusqueda.addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                buscarVideojuegos(this.value);
-            }
-        });
-    }
-}, 100);
-
-// Función para buscar videojuegos por nombre
+// Búsqueda
 async function buscarVideojuegos(titulo) {
     if (!titulo.trim()) {
         alert("Por favor ingresa un nombre de juego");
@@ -200,27 +232,18 @@ async function buscarVideojuegos(titulo) {
         estadoCarga.classList.remove("hidden");
         estadoError.classList.add("hidden");
         
-        // Usar IGDB API a través de RapidAPI (alternativa gratuita)
-        const respuesta = await fetch(`https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(titulo)}&limit=20`);
+        const respuesta = await fetch(`https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(titulo)}&limit=60`);
         const datos = await respuesta.json();
-        
-        console.log("Respuesta de CheapShark:", datos); // Debug
         
         if (!datos || datos.length === 0) {
             estadoError.classList.remove("hidden");
             estadoError.textContent = "No se encontraron juegos con ese nombre";
             grid.innerHTML = "";
+            todosLosJuegos = [];
         } else {
-            // Mapear datos de CheapShark al formato esperado
-            const juegosFormateados = datos.map(juego => ({
-                title: juego.external,
-                thumb: juego.thumb,
-                normalPrice: "-",
-                salePrice: juego.cheapest || "-",
-                savings: null
-            }));
-            
-            renderizarvideojuegos(juegosFormateados);
+            todosLosJuegos = datos;
+            paginaActual = 1;
+            renderizarPagina();
             estadoError.classList.add("hidden");
         }
     } catch (error) {
@@ -232,23 +255,27 @@ async function buscarVideojuegos(titulo) {
     }
 }
 
-// Evento al botón Buscar - DESPUÉS de definir la función
-setTimeout(() => {
-    const btnBuscar = document.querySelector("#btn-buscar");
-    const inputBusqueda = document.querySelector("#input-busqueda");
-    
-    if (btnBuscar) {
-        btnBuscar.addEventListener("click", function() {
-            const titulo = inputBusqueda.value;
-            buscarVideojuegos(titulo);
-        });
-    }
-    
-    if (inputBusqueda) {
-        inputBusqueda.addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                buscarVideojuegos(this.value);
-            }
-        });
-    }
-}, 100);
+const btnBuscar = document.querySelector("#btn-buscar");
+const inputBusqueda = document.querySelector("#input-busqueda");
+
+if (btnBuscar) {
+    btnBuscar.addEventListener("click", function() {
+        buscarVideojuegos(inputBusqueda.value);
+    });
+}
+
+if (inputBusqueda) {
+    inputBusqueda.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            buscarVideojuegos(this.value);
+        }
+    });
+}
+
+//EVENTO TIENDAS
+const selectTienda = document.querySelector("#select-tienda");
+if (selectTienda) {
+    selectTienda.addEventListener("change", function() {
+        cargarVideojuegosInicial();
+    });
+}
