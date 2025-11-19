@@ -8,8 +8,10 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-orange-600: oklch(64.6% 0.222 41.116);
     --color-amber-100: oklch(96.2% 0.059 95.617);
     --color-lime-700: oklch(53.2% 0.157 131.589);
+    --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-green-900: oklch(39.3% 0.095 152.535);
     --color-green-950: oklch(26.6% 0.065 152.934);
@@ -223,6 +225,9 @@
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
+  .mt-8 {
+    margin-top: calc(var(--spacing) * 8);
+  }
   .mt-auto {
     margin-top: auto;
   }
@@ -237,6 +242,9 @@
   }
   .mb-6 {
     margin-bottom: calc(var(--spacing) * 6);
+  }
+  .block {
+    display: block;
   }
   .flex {
     display: flex;
@@ -258,6 +266,9 @@
   }
   .h-48 {
     height: calc(var(--spacing) * 48);
+  }
+  .h-64 {
+    height: calc(var(--spacing) * 64);
   }
   .min-h-screen {
     min-height: 100vh;
@@ -306,6 +317,9 @@
   }
   .gap-3 {
     gap: calc(var(--spacing) * 3);
+  }
+  .gap-4 {
+    gap: calc(var(--spacing) * 4);
   }
   .gap-6 {
     gap: calc(var(--spacing) * 6);
@@ -449,6 +463,12 @@
   .text-black {
     color: var(--color-black);
   }
+  .text-green-600 {
+    color: var(--color-green-600);
+  }
+  .text-orange-600 {
+    color: var(--color-orange-600);
+  }
   .text-red-500 {
     color: var(--color-red-500);
   }
@@ -475,6 +495,9 @@
   }
   .text-white {
     color: var(--color-white);
+  }
+  .line-through {
+    text-decoration-line: line-through;
   }
   .underline {
     text-decoration-line: underline;
@@ -527,6 +550,11 @@
     &:focus {
       --tw-outline-style: none;
       outline-style: none;
+    }
+  }
+  .disabled\:opacity-50 {
+    &:disabled {
+      opacity: 50%;
     }
   }
   .sm\:grid-cols-2 {
